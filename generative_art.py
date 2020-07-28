@@ -6,6 +6,7 @@ TODO: https://stackoverflow.com/questions/30608035/plot-circular-gradients-using
 from PIL import Image, ImageDraw
 import random
 import util  # util.py
+import numpy as np
 
 
 class Shape:
@@ -48,12 +49,6 @@ class Circle(Shape):
         return x, y
 
 
-def save_image(filename, img_arr):
-    img = Image.fromarray(img_arr.astype("uint8"))
-    img.show()
-    # img.save(filename)
-
-
 def intersect(circles, circle):
     for c in circles:
         if c.intersect(circle, padding=2):
@@ -61,47 +56,42 @@ def intersect(circles, circle):
     return False
 
 
-if __name__ == "__main__":
-    # SIZE = (1080, 1920, 3)
-    # arr = np.random.randint(0, 255, size=SIZE)
-    # save_image("", arr)
+def random_pixels(filename):
+    SIZE = (1080, 1920, 3)
+    arr = np.random.randint(0, 255, size=SIZE)
 
+    img = Image.fromarray(arr.astype("uint8"))
+    img.show()
+    img.save(filename)
+
+
+if __name__ == "__main__":
     SIZE = (1024, 1024)
     WIDTH, HEIGHT = SIZE
     BORDER_WIDTH = 2
 
-    colors = util.generate_random_colors(10)
-
-    # 2, 16 -> 512
-    # 4, 32 -> 1024
-
     # outer-most circle for which other circles reside in
     main = Circle(WIDTH // 2, HEIGHT // 2, 490, border_color="red", border_width=BORDER_WIDTH)
 
-    circles = []
-    for _ in range(10000):
-        radius = random.randint(8, 32)
+    for i in range(1, 6):
 
-        x, y = Circle.generate(main.radius - radius)
+        colors = util.generate_random_colors(10)
 
-        # If the generated circle is NOT within the bounds of the outer-most circle, generate a new circle until one is
-        # created that meets those requirements.
-        # while d + radius >= main.radius:
-        #     x, y, d = generate(main, radius)
+        circles = []
 
-        # if d + radius < main.radius:  #
-        c = Circle(x, y, radius, fill_color=random.choice(colors))
-        if not intersect(circles, c):
-            circles.append(c)
+        for _ in range(10000):
+            radius = random.randint(8, 32)
 
-    img = Image.new("RGB", SIZE, color="white")
-    draw = ImageDraw.Draw(img)
+            x, y = Circle.generate(main.radius - radius)
 
-    for c in circles:
-        draw.ellipse(c.box(), **c.display_kwargs)
-        # draw.line(util.line_between_circles(main, c), fill="black")
+            c = Circle(x, y, radius, fill_color=random.choice(colors))
+            if not intersect(circles, c):
+                circles.append(c)
 
-        # d = distance(main.x, c.x + c.r, main.y, c.y + c.r)
-        # draw.text((c.x, c.y), f"{int(d)=}\n{c.r=}\n{main.r=}", fill="black")
+        img = Image.new("RGB", SIZE, color="white")
+        draw = ImageDraw.Draw(img)
 
-    img.show()
+        for c in circles:
+            draw.ellipse(c.box(), **c.display_kwargs)
+
+        img.save(f"images/circles_{i}.png")

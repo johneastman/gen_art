@@ -33,7 +33,7 @@ def line_between_circles(c1, c2):
     b = c2.y - c1.y
     d = distance(c1.x, c2.x, c1.y, c2.y)
 
-    return c1.x, c1.y, c2.x + c2.r * a / d, c2.y + c2.r * b / d
+    return c1.x, c1.y, c2.x + c2.radius * a / d, c2.y + c2.radius * b / d
 
 
 def random_point_in_circle(r1):
