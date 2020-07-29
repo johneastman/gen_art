@@ -36,22 +36,6 @@ def line_between_circles(c1, c2):
     return c1.x, c1.y, c2.x + c2.radius * a / d, c2.y + c2.radius * b / d
 
 
-def random_point_in_circle(r1):
-    """Generate a random coordinate within a circle.
-
-    Source for this function can be found here: https://stackoverflow.com/a/30564123
-
-    :param r1: radius of circle
-    :return: (x, y) coordinate of random point within the circle of radius r1
-    """
-    p = 2 * math.pi * random.random()
-    r = r1 * math.sqrt(random.random())
-
-    x = (math.cos(p) * r) + r1
-    y = (math.sin(p) * r) + r1
-    return x, y
-
-
 def generate_random_colors(n):
     """Return a list of randomly-generated colors in hexadecimal format
 
