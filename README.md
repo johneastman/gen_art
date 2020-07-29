@@ -5,4 +5,4 @@ A Python project for creating generative art. This repository serves as a sandbo
 Examples can be found [here](images/).
 
 ## License
-This project is covered under the [MIT License](LICENSE).
+This project is covered by the [MIT License](LICENSE).
