@@ -1,5 +1,4 @@
 from turtle import *
-from time import sleep
 
 
 class LSystem:
@@ -51,28 +50,21 @@ class LSystem:
 
 if __name__ == "__main__":
 
-    # for index, seq in enumerate(l.generate(3)):
-    #     print(f"n = {index}: {seq}")
-
     l = LSystem(["A", "B"], "A", {"A": "B-A-B", "B": "A+B+A"})
-    # variables : A B
-    # constants : + −
-    # start : A
-    # rules : (A → B−A−B), (B → A+B+A)
-    # angle : 60°
     sequence = list(l.generate(8))[-1]
-
-    print(window_width() // 2)
 
     penup()
     goto((-window_width() // 2) + 20, (-window_height() // 2) + 20)
     pendown()
 
+    ANGLE = 60
+    DISTANCE = 2
+
     for char in sequence:
         if char in l.variables:
-            forward(2)
+            forward(DISTANCE)
         elif char == "-":
-            right(60)
+            right(ANGLE)
         elif char == "+":
-            left(60)
+            left(ANGLE)
     done()
