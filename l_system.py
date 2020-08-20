@@ -49,22 +49,7 @@ class LSystem:
 
 
 if __name__ == "__main__":
-
     l = LSystem(["A", "B"], "A", {"A": "B-A-B", "B": "A+B+A"})
-    sequence = list(l.generate(8))[-1]
-
-    penup()
-    goto((-window_width() // 2) + 20, (-window_height() // 2) + 20)
-    pendown()
-
-    ANGLE = 60
-    DISTANCE = 2
-
-    for char in sequence:
-        if char in l.variables:
-            forward(DISTANCE)
-        elif char == "-":
-            right(ANGLE)
-        elif char == "+":
-            left(ANGLE)
-    done()
+    sequence = list(l.generate(8))
+    for s in sequence:
+        print(s)

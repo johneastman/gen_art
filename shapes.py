@@ -6,9 +6,12 @@ import util  # util.py
 
 class Shape:
     """Base class for all Shape objects."""
-    def __init__(self, x, y, fill_color=None, border_color=None, border_width=1):
+    def __init__(self, x, y, width, height, fill_color=None, border_color=None, border_width=1):
         self.x = x
         self.y = y
+
+        self._width = width
+        self._height = height
 
         self.display_kwargs = {
             "fill": fill_color,
@@ -16,17 +19,34 @@ class Shape:
             "width": border_width
         }
 
+    def box(self):
+        """Return the coordinates of the box that is used to draw the shape. Shapes are placed on the canvas from their
+        center point, which is to say that (x, y) is the center of all shapes.
+
+        :return:
+        """
+        return self.x - self._width, self.y - self._height, self.x + self._width, self.y + self._height
+
 
 class Rectangle(Shape):
-
     def __init__(self, x, y, width, height, **kwargs):
-        super().__init__(x, y, **kwargs)
-        self.width = width
-        self.height = height
+        super().__init__(x, y, width, height, **kwargs)
+
+
+class Ellipse(Rectangle):
+    def __init__(self, x, y, width, height, **kwargs):
+        super().__init__(x, y, width, height, **kwargs)
+
+    @property
+    def semi_major_axis(self):
+        return max(self._width, self._height)
+
+    @property
+    def semi_minor_axis(self):
+        return min(self._width, self._height)
 
 
 class Square(Rectangle):
-
     def __init__(self, x, y, width, **kwargs):
         super().__init__(x, y, width, width, **kwargs)
 
@@ -34,11 +54,8 @@ class Square(Rectangle):
 class Circle(Shape):
 
     def __init__(self, x, y, radius, **kwargs):
-        super().__init__(x, y, **kwargs)
+        super().__init__(x, y, radius, radius, **kwargs)
         self.radius = radius
-
-    def box(self):
-        return self.x - self.radius, self.y - self.radius, self.x + self.radius, self.y + self.radius
 
     def intersect(self, other, padding=0):
         """Check if two circles intersect.
