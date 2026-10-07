@@ -75,11 +75,14 @@ def circle():
     return show_image(img)
 
 
-@app.route("/planet")
+@app.route("/planet", methods=["POST"])
 def planet():
-    colors = generate_random_colors(10)
-    body_color = choice(colors)
+    has_moon = request.form.get("moon", None) != None
+    print(has_moon)
 
+    colors = generate_random_colors(10)
+    planet_color = choice(colors)
+    
     img = Image.new("RGB", SIZE, color="white")
     draw = ImageDraw.Draw(img)
 
@@ -89,35 +92,39 @@ def planet():
     start = randint(0, 180)
     end = start + 180
 
-    draw.pieslice(c.box(), start, end, fill=body_color)
+    draw.pieslice(c.box(), start, end, fill=planet_color)
 
     ring_major = randint(400, 600)
     ring_minor = randint(30, 60)
     print(f"{planet_radius=}, {ring_major=}")
 
     r = Ellipse(512, 512, 190, 40)
+    ring_angle = 180 - start
     for i in range(randint(5, 15)):
-        img = ellipse_with_angle(img, r.x, r.y, ring_major + (i * 30), ring_minor + (i * 5), 180 - start, choice(colors))
-    draw.pieslice(c.box(), end, start, fill=body_color)
+        img = ellipse_with_angle(img, r.x, r.y, ring_major + (i * 30),
+        ring_minor + (i * 5), ring_angle, choice(colors))
+    draw.pieslice(c.box(), end, start, fill=planet_color)
 
-    # Moon potential
-    #
-    # PADDING = 100
-    # p1 = Circle(
-    #     ((c.radius + PADDING) * math.cos(start * math.pi / 180)) + c.x,
-    #     ((c.radius + PADDING) * math.sin(start * math.pi / 180)) + c.y,
-    #     20,
-    #     border_color="green"
-    # )
-    # draw.ellipse(p1.box(), **p1.display_kwargs)
+    # Move the moon closer to or further away from the planet
+    distance_from_planet = randint(-50, 50) 
 
-    # p2 = Circle(
-    #     ((c.radius + PADDING) * math.cos(end * math.pi / 180)) + c.x,
-    #     ((c.radius + PADDING) * math.sin(end * math.pi / 180)) + c.y,
-    #     20,
-    #     fill_color="green"
-    # )
-    # draw.ellipse(p2.box(), **p2.display_kwargs)
+    # Offset the moon's position along the plane of rotation/planet's equator
+    moon_plane_offset = randint(-30, 30)
+
+    if has_moon:
+        ring_radians = math.radians(ring_angle)
+        side_of_planet = choice([start, end])
+        moon_angle = math.radians(side_of_planet)
+        distance = c.radius + distance_from_planet
+        normal_angle = ring_radians + math.pi / 2
+
+        moon = Circle(
+            c.x + distance * math.cos(moon_angle) + moon_plane_offset * math.cos(normal_angle),
+            c.y + distance * math.sin(moon_angle) + moon_plane_offset * math.sin(normal_angle),
+            20,
+            fill_color=choice(colors)
+        )
+        draw.ellipse(moon.box(), **moon.display_kwargs)
     return show_image(img)
 
 

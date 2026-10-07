@@ -9,9 +9,11 @@
     <h1>Home</h1>
 
     <h2>Generate a Planet</h2>
-    <ul>
-        <li><a href="/planet">Planet</a></li>
-    </ul>
+    <form action="/planet" method="post">
+        <input type="checkbox" id="moon" name="moon" value="Moon">
+        <label for="moon">Has a Moon</label><br><br>
+        <button type="submit">Generate</button>
+    </form>
 
     <h2>Generate a Circle</h2>
 
