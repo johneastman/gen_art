@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, request, send_file
 from io import BytesIO
 import math
 import os
@@ -35,6 +35,8 @@ def image(filename):
 
 @app.route("/circle")
 def circle():
+    tile_type = request.args.get("tile", "circle")
+
     # outer-most circle for which other circles reside in
     main = Circle(WIDTH // 2, HEIGHT // 2, 490)
 
@@ -47,7 +49,13 @@ def circle():
 
         x, y = Circle.generate(main.x, main.y, main.radius - radius)
 
-        c = Circle(x, y, radius, fill_color=choice(colors))
+        circle_kwargs = {**{
+            "fill_color": choice(colors),
+            **({"border_color": "white", "border_width": BORDER_WIDTH} 
+            if tile_type == "square" else {})
+        }}
+        c = Circle(x, y, radius, **circle_kwargs)
+
         if not intersect(circles, c):
             circles.append(c)
 
@@ -55,7 +63,14 @@ def circle():
     draw = ImageDraw.Draw(img)
 
     for c in circles:
-        draw.ellipse(c.box(), **c.display_kwargs)
+        shape_box = c.box()
+        match tile_type:
+            case "circle":
+                draw.ellipse(shape_box, **c.display_kwargs)
+            case "square":
+                draw.rectangle(shape_box, **c.display_kwargs)
+            case _:
+                draw.ellipse(shape_box, **c.display_kwargs)
 
     return show_image(img)
 

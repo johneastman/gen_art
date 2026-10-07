@@ -7,11 +7,19 @@
 </head>
 <body>
     <h1>Home</h1>
-    <a href="/planet">Generate a Planet</a>
-    <br/>
-    <a href="/circle">Generate a Circle</a>
 
-    <h2>View Static Images</h2>
+    <h2>Generate a Planet</h2>
+    <ul>
+        <li><a href="/planet">Planet</a></li>
+    </ul>
+
+    <h2>Generate a Circle</h2>
+    <ul>
+        <li><a href="/circle?tile=circle">Circular Tiles</a></li>
+        <li><a href="/circle?tile=square">Square Tiles</a></li>
+    </ul>
+
+    <h2>Static Images</h2>
     <ul>
         {% for filename in images %}
             <li><a href="/image/{{ filename }}">{{ filename }}</a></li>

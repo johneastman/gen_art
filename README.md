@@ -2,7 +2,9 @@
 
 A Python project for creating generative art. This repository serves as a sandbox to create generative art.
 
-Run the flask app to view and generate art:
+## Web App
+
+Run the web app to view and generate art:
 
 ```
 python app.py
