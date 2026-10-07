@@ -2,6 +2,8 @@ import math
 import random
 import string
 
+from PIL import Image, ImageDraw
+
 
 def distance(x1, x2, y1, y2):
     """Returns the distance between two points.
@@ -16,6 +18,42 @@ def distance(x1, x2, y1, y2):
     :return: Distance between Point #1 and Point #2
     """
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
+def ellipse_with_angle(im, x, y, major, minor, angle, color):
+    """Source: https://stackoverflow.com/a/44159636
+
+    :param im:
+    :param x:
+    :param y:
+    :param major:
+    :param minor:
+    :param angle:
+    :param color:
+    :return:
+    """
+    # take an existing image and plot an ellipse centered at (x,y) with a
+    # defined angle of rotation and major and minor axes.
+    # center the image so that (x,y) is at the center of the ellipse
+    x -= int(major / 2)
+    y -= int(major / 2)
+
+    # create a new image in which to draw the ellipse
+    im_ellipse = Image.new('RGBA', (major, major), (255, 255, 255, 0))
+    draw_ellipse = ImageDraw.Draw(im_ellipse, "RGBA")
+
+    # draw the ellipse
+    ellipse_box = (0, int(major / 2 - minor / 2), major, int(major / 2 - minor / 2) + minor)
+    draw_ellipse.ellipse(ellipse_box, outline=color, width=3)
+
+    # rotate the new image
+    rotated = im_ellipse.rotate(angle)
+    rx, ry = rotated.size
+
+    # paste it into the existing image and return the result
+    im.paste(rotated, (x, y, x + rx, y + ry), mask=rotated)
+    return im
+
 
 
 def line_between_circles(c1, c2):

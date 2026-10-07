@@ -2,9 +2,15 @@
 
 A Python project for creating generative art. This repository serves as a sandbox to create generative art.
 
+Run the flask app to view and generate art:
+
+```
+python app.py
+```
+
 ## Example Art
 
-Examples can be found [here](images/).
+Examples can be found [here](static/).
 
 ## Game Chaos
 
@@ -13,7 +19,7 @@ Examples can be found [here](images/).
 [![Chaos Game - Numberphile](https://img.youtube.com/vi/kbKtFN71Lfs/0.jpg)](https://www.youtube.com/watch?v=kbKtFN71Lfs "Chaos Game - Numberphile")
 
 The code in `triangle.py` will produce an image that looks something like this:
-![Triangle Fractal](images/trianglular_fractal.PNG)
+![Triangle Fractal](static/trianglular_fractal.PNG)
 
 ### Running the code
 
