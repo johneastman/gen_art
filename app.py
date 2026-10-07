@@ -130,5 +130,16 @@ def planet():
     return show_image(img)
 
 
+@app.route("/triangle")
+def sierpinski_triangle():
+    data = {
+        "start": {"position": (400, 300), "color": "green"}, # Starting point
+        "A": {"position": (400, 67), "color": "black"},  # A, top
+        "B": {"position": (89, 533), "color": "black"},  # B, left
+        "C": {"position": (711, 533), "color": "black"}, # C, right
+    }
+    return render_template("triangle.html", triangle_data=data)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
