@@ -33,9 +33,9 @@ def image(filename):
     return render_template("image.html", filename=filename)
 
 
-@app.route("/circle")
+@app.route("/circle", methods=["POST"])
 def circle():
-    tile_type = request.args.get("tile", "circle")
+    tile_type = request.form.get("tile", "circle")
 
     # outer-most circle for which other circles reside in
     main = Circle(WIDTH // 2, HEIGHT // 2, 490)

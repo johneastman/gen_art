@@ -14,10 +14,17 @@
     </ul>
 
     <h2>Generate a Circle</h2>
-    <ul>
-        <li><a href="/circle?tile=circle">Circular Tiles</a></li>
-        <li><a href="/circle?tile=square">Square Tiles</a></li>
-    </ul>
+
+    <h3>Tiles</h3>
+    <form action="/circle" method="post">
+        <input type="radio" id="circle" name="tile" value="circle" checked>
+        <label for="circle">Circular</label><br>
+
+        <input type="radio" id="square" name="tile" value="square">
+        <label for="square">Square</label><br><br>
+
+        <button type="submit">Generate</button>
+    </form>
 
     <h2>Static Images</h2>
     <ul>
