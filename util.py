@@ -81,3 +81,10 @@ def generate_random_colors(n):
     :return: list of colors
     """
     return [f"#{''.join(random.choices(string.hexdigits, k=6))}" for _ in range(n)]
+
+
+def intersect(circles, circle):
+    for c in circles:
+        if c.intersect(circle, padding=2):
+            return True
+    return False

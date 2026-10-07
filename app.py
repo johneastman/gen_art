@@ -6,9 +6,13 @@ import os
 from PIL import Image, ImageDraw
 from random import randint, choice
 from shapes import Circle, Ellipse
-from util import ellipse_with_angle, generate_random_colors
+from util import ellipse_with_angle, generate_random_colors, intersect
 
 app = Flask(__name__)
+
+SIZE = (1024, 1024)
+WIDTH, HEIGHT = SIZE
+BORDER_WIDTH = 2
 
 
 def show_image(img: Image):
@@ -29,10 +33,35 @@ def image(filename):
     return render_template("image.html", filename=filename)
 
 
+@app.route("/circle")
+def circle():
+    # outer-most circle for which other circles reside in
+    main = Circle(WIDTH // 2, HEIGHT // 2, 490)
+
+    colors = generate_random_colors(10)
+
+    circles = []
+
+    for _ in range(10000):
+        radius = randint(8, 32)
+
+        x, y = Circle.generate(main.x, main.y, main.radius - radius)
+
+        c = Circle(x, y, radius, fill_color=choice(colors))
+        if not intersect(circles, c):
+            circles.append(c)
+
+    img = Image.new("RGB", SIZE, color="white")
+    draw = ImageDraw.Draw(img)
+
+    for c in circles:
+        draw.ellipse(c.box(), **c.display_kwargs)
+
+    return show_image(img)
+
+
 @app.route("/planet")
 def planet():
-    SIZE = (1024, 1024)
-
     colors = generate_random_colors(10)
     body_color = choice(colors)
 
