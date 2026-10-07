@@ -9,7 +9,7 @@
     <h1>Home</h1>
 
     <h2>Generate a Planet</h2>
-    <form action="/planet" method="post">
+    <form action="/planet" method="post" target="_blank">
         <input type="checkbox" id="moon" name="moon" value="Moon">
         <label for="moon">Has a Moon</label><br><br>
         <button type="submit">Generate</button>
@@ -18,7 +18,7 @@
     <h2>Generate a Circle</h2>
 
     <h3>Tiles</h3>
-    <form action="/circle" method="post">
+    <form action="/circle" method="post" target="_blank">
         <input type="radio" id="circle" name="tile" value="circle" checked>
         <label for="circle">Circular</label><br>
 
@@ -31,7 +31,7 @@
     <h2>Static Images</h2>
     <ul>
         {% for filename in images %}
-            <li><a href="/image/{{ filename }}">{{ filename }}</a></li>
+            <li><a href="/image/{{ filename }}" target="_blank">{{ filename }}</a></li>
         {% endfor %}
     </ul>
 </body>

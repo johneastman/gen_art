@@ -24,13 +24,15 @@ def show_image(img: Image):
 
 @app.route("/")
 def index():
-    images = sorted(os.listdir("static"))
+    static_path = os.path.join(app.root_path, "static")
+    images = sorted(os.listdir(static_path))
     return render_template("index.html", images=images)
 
 
 @app.route("/image/<filename>")
 def image(filename):
-    return render_template("image.html", filename=filename)
+    static_path = os.path.join(app.root_path, "static", filename)
+    return send_file(static_path, mimetype="image/png")
 
 
 @app.route("/circle", methods=["POST"])
