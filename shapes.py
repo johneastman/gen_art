@@ -49,6 +49,18 @@ class Ellipse(Rectangle):
 class Square(Rectangle):
     def __init__(self, x, y, width, **kwargs):
         super().__init__(x, y, width, width, **kwargs)
+    
+    def generate(self, width):
+        """Generate a random x-y pair within the bounds of this square."""
+        max_width = max(self.width, width)
+        min_width = min(self.width, width)
+
+        max_height = max(self.height, width)
+        min_height = min(self.height, width)
+
+        x = random.randint(self.x - ((max_width - min_width) // 2), self.x + ((max_width - min_width) // 2))
+        y = random.randint(self.y - ((max_height - min_height) // 2), self.y + ((max_height - min_height) // 2))
+        return x, y
 
 
 class Circle(Shape):
@@ -66,20 +78,17 @@ class Circle(Shape):
         """
         return util.distance(other.x, self.x, other.y, self.y) - padding <= self.radius + other.radius
 
-    @staticmethod
-    def generate(x0, y0, radius):
-        """Generate an xy coordinate pair within the bounds of a given circle at position (x0, y0) and with a radius
+    def generate(self, radius):
+        """Generate a random x-y pair within the bounds of this circle.
 
         Source:
         https://www.mathworks.com/matlabcentral/answers/360361-how-to-generate-uniform-random-points-with-in-a-circle
-
-        :param x0: x position of reference circle
-        :param y0: y position of reference circle
-        :param radius: radius of reference circle
-        :return: random coordinates within reference circle
         """
+        max_radius = max(self.radius, radius)
+        min_radius = min(self.radius, radius)
+
         t = 2 * math.pi * random.random()
-        r = radius * math.sqrt(random.random())
-        x = x0 + r * math.cos(t)
-        y = y0 + r * math.sin(t)
+        r = (max_radius - min_radius) * math.sqrt(random.random())
+        x = self.x + r * math.cos(t)
+        y = self.x + r * math.sin(t)
         return x, y

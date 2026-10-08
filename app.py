@@ -5,7 +5,7 @@ import os
 
 from PIL import Image, ImageDraw
 from random import randint, choice
-from shapes import Circle, Ellipse
+from shapes import Circle, Ellipse, Square
 from util import ellipse_with_angle, generate_random_colors, intersect
 
 app = Flask(__name__)
@@ -38,9 +38,12 @@ def image(filename):
 @app.route("/tile", methods=["POST"])
 def tile():
     tile_type = request.form.get("tile", "circle")
+    canvas_shape = request.form.get("shape", "circle")
+    print("Canvas Shape:", canvas_shape)
 
     # outer-most circle in which other circles reside
-    main = Circle(WIDTH // 2, HEIGHT // 2, 490)
+    main_circle = Circle(WIDTH // 2, HEIGHT // 2, 490)
+    main_square = Square(WIDTH // 2, HEIGHT // 2, 980)
 
     colors = generate_random_colors(10)
 
@@ -49,7 +52,10 @@ def tile():
     for _ in range(10000):
         radius = randint(8, 32)
 
-        x, y = Circle.generate(main.x, main.y, main.radius - radius)
+        if canvas_shape == "square":
+            x, y = main_square.generate(radius)
+        else:
+            x, y = main_circle.generate(radius)
 
         circle_kwargs = {
             "fill_color": choice(colors)

@@ -17,10 +17,17 @@
     </form>
 
     <h2>Generate a Circle</h2>
-    <h3>Tiles</h3>
     <form action="/tile" method="post" target="_blank">
+        <h3>Canvas Shape</h3>
+        <!-- Canvas Shape -->
+        <input type="radio" id="canvas-circle" name="shape" value="circle" checked>
+        <label for="canvas-circle">Circle</label><br>
+        
+        <input type="radio" id="canvas-square" name="shape" value="square">
+        <label for="canvas-square">Square</label>
 
         <!-- Tile shape -->
+        <h3>Tiles</h3>
         <input type="radio" id="circle" name="tile" value="circle" checked>
         <label for="circle">Circular</label><br>
 
