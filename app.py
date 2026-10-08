@@ -6,7 +6,7 @@ import os
 from PIL import Image, ImageDraw
 from random import randint, choice
 from shapes import Circle, Ellipse
-from util import ellipse_with_angle, generate_random_colors, intersect, is_outside_anchor
+from util import ellipse_with_angle, generate_random_colors, intersect
 
 app = Flask(__name__)
 
@@ -132,15 +132,13 @@ def planet():
 
 @app.route("/triangle")
 def sierpinski_triangle():
-    point_s = (400, 300)
-    point_a = (400, 67)
-    point_b = (89, 533)
-    point_c = (711, 533)
-
     anchor_radius = 5
     dot_radius = 1
-    buffer = 2
-    exclusion_radius = anchor_radius + dot_radius + buffer;
+
+    point_s = Circle(400, 300, anchor_radius, fill_color="green")
+    point_a = Circle(400, 67, anchor_radius, fill_color="black")
+    point_b = Circle(89, 533, anchor_radius, fill_color="black")
+    point_c = Circle(711, 533, anchor_radius, fill_color="black")
 
     points = {
         1: point_a,
@@ -156,20 +154,18 @@ def sierpinski_triangle():
     for _ in range(10000):
         random_number = randint(1, 6)
         random_point = points.get(random_number)
-        new_x = round((random_point[0] + current_point[0]) / 2)
-        new_y = round((random_point[1] + current_point[1]) / 2)
+        new_x = round((random_point.x + current_point.x) / 2)
+        new_y = round((random_point.y + current_point.y) / 2)
 
-        current_point = (new_x, new_y)
-        if is_outside_anchor(
-            [point_s, point_a, point_b, point_c], 
-            exclusion_radius, current_point):
-            dots.append({"position": current_point, "color": "black", "radius": dot_radius})
+        current_point = Circle(new_x, new_y, dot_radius, fill_color="black")
+        if not intersect([point_s, point_a, point_b, point_c], current_point):
+            dots.append(vars(current_point))
 
     data = {
-        "start": {"position": point_s, "color": "green", "radius": anchor_radius}, # Starting point
-        "A": {"position": point_a, "color": "black", "radius": anchor_radius}, # A, top
-        "B": {"position": point_b, "color": "black", "radius": anchor_radius}, # B, left
-        "C": {"position": point_c, "color": "black", "radius": anchor_radius}, # C, right
+        "S": vars(point_s), # Starting point
+        "A": vars(point_a), # A, top
+        "B": vars(point_b), # B, left
+        "C": vars(point_c), # C, right
         "dots": dots
     }
     return render_template("triangle.html", triangle_data=data)

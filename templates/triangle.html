@@ -13,18 +13,17 @@
     const context = canvas.getContext("2d");
 
     function drawPoint(point) {
-        const {position, color, radius} = point;
-        const [px, py] = position;
+        const {x, y, radius, display_kwargs: {fill}} = point;
         context.beginPath();
-        context.arc(px, py, radius, 0, 2 * Math.PI);
-        context.fillStyle = color;
+        context.arc(x, y, radius, 0, 2 * Math.PI);
+        context.fillStyle = fill;
         context.fill();
         context.closePath();
     }
 
     const triangleData = {{ triangle_data | tojson }};
     const points = [
-        triangleData.start,
+        triangleData.S,
         triangleData.A,
         triangleData.B,
         triangleData.C

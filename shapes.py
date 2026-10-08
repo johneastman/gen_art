@@ -10,8 +10,8 @@ class Shape:
         self.x = x
         self.y = y
 
-        self._width = width
-        self._height = height
+        self.width = width
+        self.height = height
 
         self.display_kwargs = {
             "fill": fill_color,
@@ -25,7 +25,7 @@ class Shape:
 
         :return:
         """
-        return self.x - self._width, self.y - self._height, self.x + self._width, self.y + self._height
+        return self.x - self.width, self.y - self.height, self.x + self.width, self.y + self.height
 
 
 class Rectangle(Shape):
@@ -39,11 +39,11 @@ class Ellipse(Rectangle):
 
     @property
     def semi_major_axis(self):
-        return max(self._width, self._height)
+        return max(self.width, self.height)
 
     @property
     def semi_minor_axis(self):
-        return min(self._width, self._height)
+        return min(self.width, self.height)
 
 
 class Square(Rectangle):
