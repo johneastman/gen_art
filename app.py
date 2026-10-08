@@ -35,8 +35,8 @@ def image(filename):
     return send_file(static_path, mimetype="image/png")
 
 
-@app.route("/circle", methods=["POST"])
-def circle():
+@app.route("/tile", methods=["POST"])
+def tile():
     tile_type = request.form.get("tile", "circle")
 
     # outer-most circle in which other circles reside
@@ -51,11 +51,15 @@ def circle():
 
         x, y = Circle.generate(main.x, main.y, main.radius - radius)
 
-        circle_kwargs = {**{
-            "fill_color": choice(colors),
-            **({"border_color": "white", "border_width": BORDER_WIDTH} 
-            if tile_type == "square" else {})
-        }}
+        circle_kwargs = {
+            "fill_color": choice(colors)
+        }
+
+        if tile_type in ("square", "round-square"):
+            circle_kwargs.update(
+                [("border_color", "white"), ("border_width", BORDER_WIDTH)]
+            )
+
         c = Circle(x, y, radius, **circle_kwargs)
 
         if not intersect(circles, c):
@@ -71,6 +75,9 @@ def circle():
                 draw.ellipse(shape_box, **c.display_kwargs)
             case "square":
                 draw.rectangle(shape_box, **c.display_kwargs)
+            case "round-square":
+                draw.rounded_rectangle(
+                    shape_box, **c.display_kwargs, radius=c.width * 0.7)
             case _:
                 draw.ellipse(shape_box, **c.display_kwargs)
 

@@ -18,12 +18,17 @@
 
     <h2>Generate a Circle</h2>
     <h3>Tiles</h3>
-    <form action="/circle" method="post" target="_blank">
+    <form action="/tile" method="post" target="_blank">
+
+        <!-- Tile shape -->
         <input type="radio" id="circle" name="tile" value="circle" checked>
         <label for="circle">Circular</label><br>
 
         <input type="radio" id="square" name="tile" value="square">
-        <label for="square">Square</label><br><br>
+        <label for="square">Square</label><br>
+
+        <input type="radio" id="round-square" name="tile" value="round-square">
+        <label for="round-square">Rounded Square</label><br><br>
 
         <button type="submit">Generate</button>
     </form>
