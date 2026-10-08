@@ -6,7 +6,9 @@ import os
 from PIL import Image, ImageDraw
 from random import randint, choice
 from shapes import Circle, Ellipse, Square
-from util import ellipse_with_angle, generate_random_colors, intersect
+from util import (
+    ellipse_with_angle, generate_random_colors, intersect,
+    draw_shapes)
 
 app = Flask(__name__)
 
@@ -39,16 +41,45 @@ def image(filename):
 def tile():
     tile_type = request.form.get("tile", "circle")
     canvas_shape = request.form.get("shape", "circle")
-    print("Canvas Shape:", canvas_shape)
-
-    # outer-most circle in which other circles reside
-    main_circle = Circle(WIDTH // 2, HEIGHT // 2, 490)
-    main_square = Square(WIDTH // 2, HEIGHT // 2, 980)
+    canvas_layout = request.form.get("layout", "random")
 
     colors = generate_random_colors(10)
 
-    circles = []
+    if canvas_layout == "grid":
+        # The last and bottom row of pixels are cutoff. Adding 1 to the width
+        # and height accounts for this and ensures the whole image is visible
+        img = Image.new("RGB", (WIDTH + 1, HEIGHT + 1), color="white")
+        draw = ImageDraw.Draw(img)
 
+        CELL_SIZE = 32
+        shapes = []
+        for x_offset in range(0, WIDTH, CELL_SIZE * 2):
+            for y_offset in range(0, HEIGHT, CELL_SIZE * 2):
+                if tile_type == "square":
+                    s = Square(
+                        CELL_SIZE + x_offset,
+                        CELL_SIZE + y_offset,
+                        CELL_SIZE, 
+                        fill_color=choice(colors),
+                        border_color="black")
+                else:
+                    s = Circle(
+                        CELL_SIZE + x_offset,
+                        CELL_SIZE + y_offset,
+                        CELL_SIZE,
+                        fill_color=choice(colors),
+                        border_color="black")
+                shapes.append(s)
+
+        draw_shapes(draw, shapes, tile_type)
+        return show_image(img)
+
+
+    # outer-most shape in which other shapes reside
+    main_circle = Circle(WIDTH // 2, HEIGHT // 2, 490)
+    main_square = Square(WIDTH // 2, HEIGHT // 2, 980)
+    
+    circles = []
     for _ in range(10000):
         radius = randint(8, 32)
 
@@ -74,19 +105,7 @@ def tile():
     img = Image.new("RGB", SIZE, color="white")
     draw = ImageDraw.Draw(img)
 
-    for c in circles:
-        shape_box = c.box()
-        match tile_type:
-            case "circle":
-                draw.ellipse(shape_box, **c.display_kwargs)
-            case "square":
-                draw.rectangle(shape_box, **c.display_kwargs)
-            case "round-square":
-                draw.rounded_rectangle(
-                    shape_box, **c.display_kwargs, radius=c.width * 0.7)
-            case _:
-                draw.ellipse(shape_box, **c.display_kwargs)
-
+    draw_shapes(draw, circles, tile_type)
     return show_image(img)
 
 
@@ -137,7 +156,8 @@ def planet():
             c.x + distance * math.cos(moon_angle) + moon_plane_offset * math.cos(normal_angle),
             c.y + distance * math.sin(moon_angle) + moon_plane_offset * math.sin(normal_angle),
             20,
-            fill_color=choice(colors)
+            fill_color=choice(colors),
+            border_color="black"
         )
         draw.ellipse(moon.box(), **moon.display_kwargs)
     return show_image(img)

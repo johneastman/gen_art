@@ -88,3 +88,28 @@ def intersect(circles, circle):
         if c.intersect(circle, padding=2):
             return True
     return False
+
+
+def draw_shapes(draw, shapes, shape_type):
+    for shape in shapes:
+        shape_box = shape.box()
+        display_kwargs = shape.display_kwargs
+
+        match shape_type:
+            case "circle":
+                draw.ellipse(
+                    shape_box,
+                    **display_kwargs)
+            case "square":
+                draw.rectangle(
+                    shape_box,
+                    **display_kwargs)
+            case "round-square":
+                draw.rounded_rectangle(
+                    shape_box,
+                    **display_kwargs,
+                    radius=shape.width * 0.7)
+            case _:
+                draw.ellipse(
+                    shape_box,
+                    **display_kwargs)
