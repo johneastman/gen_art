@@ -88,3 +88,13 @@ def intersect(circles, circle):
         if c.intersect(circle, padding=2):
             return True
     return False
+
+
+def is_outside_anchor(anchor_points, exclusion_radius, point):
+    px, py = point
+    for x, y in anchor_points:
+        dx = px - x;
+        dy = py - y;
+        if dx ** 2 + dy ** 2 < exclusion_radius ** 2:
+            return False
+    return True

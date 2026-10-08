@@ -9,72 +9,54 @@
     <canvas id="canvas" width="800" height="600" style="border: 2px solid #000"></canvas>
 </body>
 <script>
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function getNextPoint(triangleData, randomNumber) {
-        if (randomNumber === 1 || randomNumber === 2) return triangleData.A.position;
-        if (randomNumber === 3 || randomNumber === 4) return triangleData.B.position;
-        if (randomNumber === 5 || randomNumber === 6) return triangleData.C.position;
-    }
-
-    function isOutsideAnchorPoint(dots, x, y, exclusionRadius) {
-        return dots.every(({position: [px, py]}) => {
-            const dx = x - px;
-            const dy = y - py;
-            return dx * dx + dy * dy >= Math.pow(exclusionRadius, 2);
-        });
-    }
-
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
+
+    function drawPoint(point) {
+        const {position, color, radius} = point;
+        const [px, py] = position;
+        context.beginPath();
+        context.arc(px, py, radius, 0, 2 * Math.PI);
+        context.fillStyle = color;
+        context.fill();
+        context.closePath();
+    }
+
     const triangleData = {{ triangle_data | tojson }};
-    const dots = [
+    const points = [
         triangleData.start,
         triangleData.A,
         triangleData.B,
         triangleData.C
     ];
 
-    const anchorRadius = 5;
-    const dotRadius = 1;
-    const buffer = 2;
-    const exclusionRadius = anchorRadius + dotRadius + buffer;
+    points.forEach(drawPoint);
 
-    dots.forEach(point => {
-        const {position, color} = point;
-        const [px, py] = position;
-        context.beginPath();
-        context.arc(px, py, anchorRadius, 0, 2 * Math.PI);
-        context.fillStyle = color;
-        context.fill();
-        context.closePath();
-    });
+    const dotsPerSecond = 2000; // Increase/decrease to change the speed
+    const millisecondsPerDot = 1000 / dotsPerSecond;
+    let nextDotIndex = 0;
+    let previousTime;
+    let accumulatedTime = 0;
 
-    let i = 0;
-    let currentPosition = triangleData.start.position;
-    while (i < 10000) {
-        const [cx, cy] = currentPosition;
-        const randomNumber = getRandomInt(1, 6);
-        const [rx, ry] = getNextPoint(triangleData, randomNumber);
-        const nx = Math.round((rx + cx) / 2);
-        const ny = Math.round((ry + cy) / 2);
+    function animate(now) {
+        if (previousTime !== undefined) {
+            accumulatedTime += now - previousTime;
+            const dotsToDraw = Math.floor(accumulatedTime / millisecondsPerDot);
+            accumulatedTime -= dotsToDraw * millisecondsPerDot;
 
-        // Only draw points that are not inside an anchor point (A, B, C, start), 
-        // but preserve them in the backend to ensure the tringle is drawn 
-        // accurately.
-        if (isOutsideAnchorPoint(dots, nx, ny, exclusionRadius)) {
-            context.beginPath();
-            context.arc(nx, ny, dotRadius, 0, 2 * Math.PI);
-            context.fillStyle = "black";
-            context.fill();
-            context.closePath();
+            const endIndex = Math.min(nextDotIndex + dotsToDraw, triangleData.dots.length);
+            while (nextDotIndex < endIndex) {
+                drawPoint(triangleData.dots[nextDotIndex]);
+                nextDotIndex++;
+            }
         }
-        currentPosition = [nx, ny];
-        i++;
+
+        previousTime = now;
+        if (nextDotIndex < triangleData.dots.length) {
+            requestAnimationFrame(animate);
+        }
     }
+
+    requestAnimationFrame(animate);
 </script>
 </html>
