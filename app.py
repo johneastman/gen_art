@@ -112,7 +112,7 @@ def tile():
 @app.route("/planet", methods=["POST"])
 def planet():
     has_moon = request.form.get("moon", None) != None
-    print(has_moon)
+    has_rings = request.form.get("rings", None) != None
 
     colors = generate_random_colors(10)
     planet_color = choice(colors)
@@ -128,15 +128,18 @@ def planet():
 
     draw.pieslice(c.box(), start, end, fill=planet_color)
 
-    ring_major = randint(400, 600)
-    ring_minor = randint(30, 60)
-    print(f"{planet_radius=}, {ring_major=}")
-
-    r = Ellipse(512, 512, 190, 40)
+    # This variable needs to be declared outside the if statement so it can be use
+    # when calculating the moon's location.
     ring_angle = 180 - start
-    for i in range(randint(5, 15)):
-        img = ellipse_with_angle(img, r.x, r.y, ring_major + (i * 30),
-        ring_minor + (i * 5), ring_angle, choice(colors))
+    if has_rings:
+        ring_major = randint(400, 600)
+        ring_minor = randint(30, 60)
+
+        r = Ellipse(512, 512, 190, 40)
+        for i in range(randint(5, 15)):
+            img = ellipse_with_angle(img, r.x, r.y, ring_major + (i * 30),
+            ring_minor + (i * 5), ring_angle, choice(colors))
+    
     draw.pieslice(c.box(), end, start, fill=planet_color)
 
     # Move the moon closer to or further away from the planet
