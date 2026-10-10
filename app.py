@@ -51,12 +51,13 @@ def tile():
 
     if canvas_layout == "grid":
         CELL_SIZE = 32
+
+        # The last and bottom row of pixels are cutoff. Adding 1 to the width
+        # and height accounts for this and ensures the whole image is visible
         img = Image.new("RGB", (WIDTH + 1, HEIGHT + 1), color="white")
         draw = ImageDraw.Draw(img)
+       
         if canvas_shape == "square":
-            # The last and bottom row of pixels are cutoff. Adding 1 to the width
-            # and height accounts for this and ensures the whole image is visible
-
             shapes = []
             for x_offset in range(0, WIDTH, CELL_SIZE * 2):
                 for y_offset in range(0, HEIGHT, CELL_SIZE * 2):
