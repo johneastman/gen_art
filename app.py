@@ -8,7 +8,7 @@ from random import randint, choice
 from shapes import Circle, Ellipse, Square
 from util import (
     ellipse_with_angle, generate_random_colors, intersect,
-    draw_shapes)
+    draw_shapes, point_on_circumference)
 
 app = Flask(__name__)
 
@@ -43,41 +43,81 @@ def tile():
     canvas_shape = request.form.get("shape", "circle")
     canvas_layout = request.form.get("layout", "random")
 
-    colors = generate_random_colors(10)
-
-    if canvas_layout == "grid":
-        # The last and bottom row of pixels are cutoff. Adding 1 to the width
-        # and height accounts for this and ensures the whole image is visible
-        img = Image.new("RGB", (WIDTH + 1, HEIGHT + 1), color="white")
-        draw = ImageDraw.Draw(img)
-
-        CELL_SIZE = 32
-        shapes = []
-        for x_offset in range(0, WIDTH, CELL_SIZE * 2):
-            for y_offset in range(0, HEIGHT, CELL_SIZE * 2):
-                if tile_type == "square":
-                    s = Square(
-                        CELL_SIZE + x_offset,
-                        CELL_SIZE + y_offset,
-                        CELL_SIZE, 
-                        fill_color=choice(colors),
-                        border_color="black")
-                else:
-                    s = Circle(
-                        CELL_SIZE + x_offset,
-                        CELL_SIZE + y_offset,
-                        CELL_SIZE,
-                        fill_color=choice(colors),
-                        border_color="black")
-                shapes.append(s)
-
-        draw_shapes(draw, shapes, tile_type)
-        return show_image(img)
-
-
     # outer-most shape in which other shapes reside
     main_circle = Circle(WIDTH // 2, HEIGHT // 2, 490)
     main_square = Square(WIDTH // 2, HEIGHT // 2, 980)
+
+    colors = generate_random_colors(10)
+
+    if canvas_layout == "grid":
+        CELL_SIZE = 32
+        img = Image.new("RGB", (WIDTH + 1, HEIGHT + 1), color="white")
+        draw = ImageDraw.Draw(img)
+        if canvas_shape == "square":
+            # The last and bottom row of pixels are cutoff. Adding 1 to the width
+            # and height accounts for this and ensures the whole image is visible
+
+            shapes = []
+            for x_offset in range(0, WIDTH, CELL_SIZE * 2):
+                for y_offset in range(0, HEIGHT, CELL_SIZE * 2):
+                    if tile_type == "square":
+                        s = Square(
+                            CELL_SIZE + x_offset,
+                            CELL_SIZE + y_offset,
+                            CELL_SIZE, 
+                            fill_color=choice(colors),
+                            border_color="black")
+                    else:
+                        s = Circle(
+                            CELL_SIZE + x_offset,
+                            CELL_SIZE + y_offset,
+                            CELL_SIZE,
+                            fill_color=choice(colors),
+                            border_color="black")
+                    shapes.append(s)
+
+            draw_shapes(draw, shapes, tile_type)
+            return show_image(img)
+        
+        else:
+            start_x = main_circle.x
+            start_y = main_circle.y
+            shapes = [
+                Circle(
+                    start_x,
+                    start_y,
+                    CELL_SIZE,
+                    fill_color=choice(colors),
+                    border_color="black"
+                )
+            ]
+            diameter = CELL_SIZE * 2
+            for radius in range(diameter, main_circle.radius - CELL_SIZE, diameter):
+                ring = Circle(
+                    start_x,
+                    start_y,
+                    radius,
+                    border_color="black"
+                )
+                max_circles = math.floor(
+                    math.pi / math.asin(CELL_SIZE / radius)
+                )
+
+                num_circles = max(6, (max_circles // 6) * 6)
+                for i in range(num_circles):
+                    x, y = point_on_circumference(
+                        start_x, start_y, radius, i / num_circles)
+
+                    s = Circle(
+                        x,
+                        y,
+                        CELL_SIZE,
+                        fill_color=choice(colors),
+                        border_color="black")
+                    shapes.append(s)
+
+            draw_shapes(draw, shapes, tile_type)
+            return show_image(img)
     
     circles = []
     for _ in range(10000):

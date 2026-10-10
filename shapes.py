@@ -87,8 +87,13 @@ class Circle(Shape):
         max_radius = max(self.radius, radius)
         min_radius = min(self.radius, radius)
 
-        t = 2 * math.pi * random.random()
+        # Square root ensures a more even distribution of points within the circle.
+        # Subtracting the new circle's radius from this circle's radius ensures no
+        # circles fall outside the bounds of this circle.
         r = (max_radius - min_radius) * math.sqrt(random.random())
-        x = self.x + r * math.cos(t)
-        y = self.x + r * math.sin(t)
+
+        f = random.random() # random fraction/percentage of circle (between 0 and 1)
+        x, y = util.point_on_circumference(
+            self.x, self.y, r, f
+        )
         return x, y

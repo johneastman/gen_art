@@ -113,3 +113,20 @@ def draw_shapes(draw, shapes, shape_type):
                 draw.ellipse(
                     shape_box,
                     **display_kwargs)
+
+
+def point_on_circumference(cx, cy, cr, f):
+    """Generate a point along the circumference of a circle.
+    
+    cx: x position of circle
+    cy: y position of circle
+    cr: radius of circle
+    f:  fraction/percentage of circle. 2π is one rotation (360°) around the circle. f is
+    a value between 0 and 1 and represents a fraction of one full rotation. That fraction
+    of an angle, along with the x, y, and radius of the circle, is used to calculate
+    an x-y coordinate along the circumference.
+    """
+    t = 2 * math.pi * f
+    x = cx + cr * math.cos(t)
+    y = cy + cr * math.sin(t)
+    return x, y
