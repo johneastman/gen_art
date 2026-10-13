@@ -1,3 +1,10 @@
+"""
+There is a known bug where shapes are rendered at twice their specified size. Investigating
+and attempting to resolve the bug exposed deeper problems with the code. At the same
+time, my vision for the project was changing, and I wanted a cleaner development
+foundation, why I created a new version of the Shape object, which resolved the render bug,
+and a v2 endpoint.
+"""
 from flask import (
     Blueprint, current_app, request, render_template,
     send_file)
