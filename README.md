@@ -10,6 +10,14 @@ Run the web app to view and generate art:
 python app.py
 ```
 
+## Unit Tests
+
+Run the unit tests with the following:
+
+```
+python3 -m unittest tests/*.py
+```
+
 ## Example Art
 
 Examples can be found [here](static/).

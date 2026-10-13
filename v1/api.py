@@ -1,0 +1,247 @@
+from flask import (
+    Blueprint, current_app, request, render_template,
+    send_file)
+from io import BytesIO
+import math
+import os
+from random import randint, choice
+
+from PIL import Image, ImageDraw
+
+from .shapes import Circle, Ellipse, Square
+from util import (
+    ellipse_with_angle, generate_random_colors, intersect,
+    draw_shapes, point_on_circumference, show_image)
+
+API_VERSION = "v1"
+v1 = Blueprint(API_VERSION, __name__, url_prefix=f"/api/{API_VERSION}")
+
+SIZE = (1024, 1024)
+WIDTH, HEIGHT = SIZE
+BORDER_WIDTH = 2
+
+@v1.route("/")
+def index():
+    static_path = os.path.join(current_app.root_path, "static")
+    images = sorted(os.listdir(static_path))
+    return render_template(
+        os.path.join(API_VERSION, "index.html"),
+        images=images,
+        api_version=API_VERSION)
+
+
+@v1.route("/image/<filename>")
+def image(filename):
+    static_path = os.path.join(current_app.root_path, "static", filename)
+    return send_file(static_path, mimetype="image/png")
+
+
+@v1.route("/tile", methods=["POST"])
+def tile():
+    tile_type = request.form.get("tile", "circle")
+    canvas_shape = request.form.get("shape", "circle")
+    canvas_layout = request.form.get("layout", "random")
+
+    # outer-most shape in which other shapes reside
+    main_circle = Circle(WIDTH // 2, HEIGHT // 2, 490)
+    main_square = Square(WIDTH // 2, HEIGHT // 2, 980)
+
+    colors = generate_random_colors(10)
+
+    if canvas_layout == "grid":
+        CELL_SIZE = 32
+
+        # The last and bottom row of pixels are cutoff. Adding 1 to the width
+        # and height accounts for this and ensures the whole image is visible
+        img = Image.new("RGB", (WIDTH + 1, HEIGHT + 1), color="white")
+        draw = ImageDraw.Draw(img)
+       
+        if canvas_shape == "square":
+            shapes = []
+            for x_offset in range(0, WIDTH, CELL_SIZE * 2):
+                for y_offset in range(0, HEIGHT, CELL_SIZE * 2):
+                    if tile_type == "square":
+                        s = Square(
+                            CELL_SIZE + x_offset,
+                            CELL_SIZE + y_offset,
+                            CELL_SIZE, 
+                            fill_color=choice(colors),
+                            border_color="black")
+                    else:
+                        s = Circle(
+                            CELL_SIZE + x_offset,
+                            CELL_SIZE + y_offset,
+                            CELL_SIZE,
+                            fill_color=choice(colors),
+                            border_color="black")
+                    shapes.append(s)
+
+            draw_shapes(draw, shapes, tile_type)
+            return show_image(img)
+        
+        else:
+            start_x = main_circle.x
+            start_y = main_circle.y
+            shapes = [
+                Circle(
+                    start_x,
+                    start_y,
+                    CELL_SIZE,
+                    fill_color=choice(colors),
+                    border_color="black"
+                )
+            ]
+            diameter = CELL_SIZE * 2
+            for radius in range(diameter, main_circle.radius - CELL_SIZE, diameter):
+                ring = Circle(
+                    start_x,
+                    start_y,
+                    radius,
+                    border_color="black"
+                )
+                max_circles = math.floor(
+                    math.pi / math.asin(CELL_SIZE / radius)
+                )
+
+                num_circles = max(6, (max_circles // 6) * 6)
+                for i in range(num_circles):
+                    x, y = point_on_circumference(
+                        start_x, start_y, radius, i / num_circles)
+
+                    s = Circle(
+                        x,
+                        y,
+                        CELL_SIZE,
+                        fill_color=choice(colors),
+                        border_color="black")
+                    shapes.append(s)
+
+            draw_shapes(draw, shapes, tile_type)
+            return show_image(img)
+    
+    circles = []
+    for _ in range(10000):
+        radius = randint(8, 32)
+
+        if canvas_shape == "square":
+            x, y = main_square.generate(radius)
+        else:
+            x, y = main_circle.generate(radius)
+
+        circle_kwargs = {
+            "fill_color": choice(colors)
+        }
+
+        if tile_type in ("square", "round-square"):
+            circle_kwargs.update(
+                [("border_color", "white"), ("border_width", BORDER_WIDTH)]
+            )
+
+        c = Circle(x, y, radius, **circle_kwargs)
+
+        if not intersect(circles, c):
+            circles.append(c)
+
+    img = Image.new("RGB", SIZE, color="white")
+    draw = ImageDraw.Draw(img)
+
+    draw_shapes(draw, circles, tile_type)
+    return show_image(img)
+
+
+@v1.route("/planet", methods=["POST"])
+def planet():
+    has_moon = request.form.get("moon", None) != None
+    has_rings = request.form.get("rings", None) != None
+
+    colors = generate_random_colors(10)
+    planet_color = choice(colors)
+    
+    img = Image.new("RGB", SIZE, color="white")
+    draw = ImageDraw.Draw(img)
+
+    planet_radius = randint(75, 150)
+    c = Circle(512, 512, planet_radius)
+
+    start = randint(0, 180)
+    end = start + 180
+
+    draw.pieslice(c.box(), start, end, fill=planet_color)
+
+    # This variable needs to be declared outside the if statement so it can be use
+    # when calculating the moon's location.
+    ring_angle = 180 - start
+    if has_rings:
+        ring_major = randint(400, 600)
+        ring_minor = randint(30, 60)
+
+        r = Ellipse(512, 512, 190, 40)
+        for i in range(randint(5, 15)):
+            img = ellipse_with_angle(img, r.x, r.y, ring_major + (i * 30),
+            ring_minor + (i * 5), ring_angle, choice(colors))
+    
+    draw.pieslice(c.box(), end, start, fill=planet_color)
+
+    # Move the moon closer to or further away from the planet
+    distance_from_planet = randint(-50, 50) 
+
+    # Offset the moon's position along the plane of rotation/planet's equator
+    moon_plane_offset = randint(-30, 30)
+
+    if has_moon:
+        ring_radians = math.radians(ring_angle)
+        side_of_planet = choice([start, end])
+        moon_angle = math.radians(side_of_planet)
+        distance = c.radius + distance_from_planet
+        normal_angle = ring_radians + math.pi / 2
+
+        moon = Circle(
+            c.x + distance * math.cos(moon_angle) + moon_plane_offset * math.cos(normal_angle),
+            c.y + distance * math.sin(moon_angle) + moon_plane_offset * math.sin(normal_angle),
+            20,
+            fill_color=choice(colors),
+            border_color="black"
+        )
+        draw.ellipse(moon.box(), **moon.display_kwargs)
+    return show_image(img)
+
+
+@v1.route("/triangle")
+def sierpinski_triangle():
+    anchor_radius = 5
+    dot_radius = 1
+
+    point_s = Circle(400, 300, anchor_radius, fill_color="green")
+    point_a = Circle(400, 67, anchor_radius, fill_color="black")
+    point_b = Circle(89, 533, anchor_radius, fill_color="black")
+    point_c = Circle(711, 533, anchor_radius, fill_color="black")
+
+    points = {
+        1: point_a,
+        2: point_a,
+        3: point_b,
+        4: point_b,
+        5: point_c,
+        6: point_c
+    }
+
+    dots = []
+    current_point = point_s
+    for _ in range(10000):
+        random_number = randint(1, 6)
+        random_point = points.get(random_number)
+        new_x = round((random_point.x + current_point.x) / 2)
+        new_y = round((random_point.y + current_point.y) / 2)
+
+        current_point = Circle(new_x, new_y, dot_radius, fill_color="black")
+        if not intersect([point_s, point_a, point_b, point_c], current_point):
+            dots.append(vars(current_point))
+
+    data = {
+        "S": vars(point_s), # Starting point
+        "A": vars(point_a), # A, top
+        "B": vars(point_b), # B, left
+        "C": vars(point_c), # C, right
+        "dots": dots
+    }
+    return render_template("triangle.html", triangle_data=data)

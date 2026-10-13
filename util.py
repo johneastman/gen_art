@@ -2,7 +2,16 @@ import math
 import random
 import string
 
+from flask import send_file
+from io import BytesIO
 from PIL import Image, ImageDraw
+
+
+def show_image(img: Image):
+    img_io = BytesIO()
+    img.save(img_io, "PNG", quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype="image/png")
 
 
 def distance(x1, x2, y1, y2):

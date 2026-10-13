@@ -6,60 +6,8 @@
     <title>Home</title>
 </head>
 <body>
-    <h1>Home</h1>
-    <a href="https://github.com/johneastman/gen_art" target="_blank">Source Code</a>
-
-    <h2>Generate a Planet</h2>
-    <form action="/planet" method="post" target="_blank">
-        <input type="checkbox" id="moon" name="moon" value="Moon">
-        <label for="moon">Has a Moon</label><br>
-
-        <input type="checkbox" id="rings" name="rings" value="Rings">
-        <label for="rings">Has Rings</label><br><br>
-
-        <button type="submit">Generate</button>
-    </form>
-
-    <h2>Generate a Circle</h2>
-    <form action="/tile" method="post" target="_blank">
-        <!-- Canvas Shape -->
-        <h3>Canvas Shape</h3>
-        <input type="radio" id="canvas-circle" name="shape" value="circle" checked>
-        <label for="canvas-circle">Circle</label><br>
-        
-        <input type="radio" id="canvas-square" name="shape" value="square">
-        <label for="canvas-square">Square</label><br><br>
-
-        <!-- Canvas Layout -->
-        <h3>Canvas Layout</h3>
-        <input type="radio" id="grid" name="layout" value="grid" checked>
-        <label for="grid">Grid</label><br>
-
-        <input type="radio" id="random" name="layout" value="random">
-        <label for="random">Random</label><br><br>
-
-        <!-- Tile shape -->
-        <h3>Tiles</h3>
-        <input type="radio" id="circle" name="tile" value="circle" checked>
-        <label for="circle">Circular</label><br>
-
-        <input type="radio" id="square" name="tile" value="square">
-        <label for="square">Square</label><br>
-
-        <input type="radio" id="round-square" name="tile" value="round-square">
-        <label for="round-square">Rounded Square</label><br><br>
-
-        <button type="submit">Generate</button>
-    </form>
-
-    <h2>Sierpiński triangle</h2>
-    <a href="/triangle" target="_blank">Sierpiński triangle</a>
-
-    <h2>Static Images</h2>
-    <ul>
-        {% for filename in images %}
-            <li><a href="/image/{{ filename }}" target="_blank">{{ filename }}</a></li>
-        {% endfor %}
-    </ul>
+    {% for api_version in api_versions %}
+        <a href="/api/{{ api_version }}/">API {{ api_version }}</a><br>
+    {% endfor %}
 </body>
 </html>

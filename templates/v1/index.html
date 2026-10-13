@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home {{ api_version }}</title>
+</head>
+<body>
+    {% include "shared/_api_header.html" %}
+    <a href="https://github.com/johneastman/gen_art" target="_blank">Source Code</a>
+
+    <h2>Generate a Planet</h2>
+    <form action="{{ url_for('.planet') }}" method="post" target="_blank">
+        <input type="checkbox" id="moon" name="moon" value="Moon">
+        <label for="moon">Has a Moon</label><br>
+
+        <input type="checkbox" id="rings" name="rings" value="Rings">
+        <label for="rings">Has Rings</label><br><br>
+
+        <button type="submit">Generate</button>
+    </form>
+
+    {% include "shared/_tile_form.html" %}
+
+    <h2>Sierpiński triangle</h2>
+    <a href="{{ url_for('.sierpinski_triangle') }}" target="_blank">Sierpiński triangle</a>
+
+    <h2>Static Images</h2>
+    <ul>
+        {% for filename in images %}
+            <li><a href="{{ url_for('.image', filename=filename) }}" target="_blank">{{ filename }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
