@@ -20,41 +20,13 @@ def index():
         api_version=API_VERSION)
 
 
-def backtrack(assignments, neighbors, colors):
-    # Have all cells been colored?
-    if len(assignments) == len(neighbors):
-        return True
-
-    # Find a cell that hasn't been colored yet
-    coordinate = next(
-        cell for cell in neighbors
-        if cell not in assignments
-    )
-
-    # Try each available color
-    for color in colors:
-        if is_valid(coordinate, color, assignments, neighbors):
-            # Make the assignment
-            assignments[coordinate] = color
-
-            # Recursively color the remaining cells
-            if backtrack(assignments, neighbors, colors):
-                return True
-
-            # Dead end! Undo the assignment and try another color
-            del assignments[coordinate]
-
-    # No color worked for this cell
-    return False
-
-
 @v2.route("/tile", methods=["POST"])
 def tile():
     tile_type = request.form.get("tile", "circle")
     canvas_shape = request.form.get("shape", "circle")
     canvas_layout = request.form.get("layout", "random")
 
-    colors = generate_random_colors(10)
+    colors = generate_random_colors(4)
 
     CELL_SIZE = 64
     CANVAS_SIZE = (1024, 1024)

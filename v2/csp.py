@@ -1,3 +1,5 @@
+from random import random
+
 class CSP:
     def __init__(self, neighbors, colors):
         self.neighbors = neighbors
@@ -25,8 +27,10 @@ class CSP:
             if cell not in self.assignments
         )
 
+        random_colors = sorted(self.colors, key=lambda _: random())
+
         # Try each available color
-        for color in self.colors:
+        for color in random_colors:
             if self.is_valid(coordinate, color):
                 # Make the assignment
                 self.assignments[coordinate] = color
